@@ -212,7 +212,7 @@ async function run() {
           success: true,
           data: relatedProjects,
         });
-      } catch (error) {
+      } catch (error: any) {
         res.status(500).send({
           success: false,
           message: error.message,
@@ -240,5 +240,11 @@ run().catch(console.dir);
 app.get('/', (req: Request, res: Response) => {
   res.send('SkillBridge Server is running!');
 });
+
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
 
 export default app;

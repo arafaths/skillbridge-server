@@ -31,7 +31,7 @@ async function run() {
     const usersCollection = database.collection('users');
     const projectsCollection = database.collection('projects');
 
-    // Explore Projects 
+    // Explore Projects
     app.get('/projects', async (req: Request, res: Response) => {
       try {
         const {
@@ -123,13 +123,38 @@ async function run() {
       }
     });
 
+    // Featured Projects API
+    app.get('/projects/featured', async (req, res) => {
+      try {
+        const featuredProjects = await projectsCollection
+          .find({
+            featured: true,
+            status: 'open',
+          })
+          .sort({ createdAt: -1 })
+          .limit(4)
+          .toArray();
+
+        res.send({
+          success: true,
+          data: featuredProjects,
+        });
+      } catch (error) {
+        res.status(500).send({
+          success: false,
+          message: 'Failed to fetch featured projects',
+        });
+      }
+    });
+
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     // Send a ping to confirm a successful connection
     // await client.db('admin').command({ ping: 1 });
-    console.log(
+    console
+      .log
       // 'Pinged your deployment. You successfully connected to MongoDB!',
-    );
+      ();
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();

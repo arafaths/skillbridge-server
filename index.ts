@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 // Load environment variables
 dotenv.config();
@@ -143,6 +143,79 @@ async function run() {
         res.status(500).send({
           success: false,
           message: 'Failed to fetch featured projects',
+        });
+      }
+    });
+
+    // Project Details API
+    app.get('/projects/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid Project ID',
+          });
+        }
+
+        const project = await projectsCollection.findOne({
+          _id: new ObjectId(id),
+        });
+
+        if (!project) {
+          return res.status(404).json({
+            success: false,
+            message: 'Project not found',
+          });
+        }
+
+        res.status(200).json({
+          success: true,
+          data: project,
+        });
+      } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+          success: false,
+          message: 'Internal Server Error',
+        });
+      }
+    });
+
+    // Related Projects API
+    app.get('/projects/related/:id', async (req, res) => {
+      const { id } = req.params;
+
+      try {
+        const currentProject = await projectsCollection.findOne({
+          _id: new ObjectId(id),
+        });
+
+        if (!currentProject) {
+          return res.status(404).send({
+            success: false,
+            message: 'Project not found',
+          });
+        }
+
+        const relatedProjects = await projectsCollection
+          .find({
+            category: currentProject.category,
+            _id: { $ne: new ObjectId(id) }, // বর্তমান project বাদ
+          })
+          .limit(4)
+          .toArray();
+
+        res.send({
+          success: true,
+          data: relatedProjects,
+        });
+      } catch (error) {
+        res.status(500).send({
+          success: false,
+          message: error.message,
         });
       }
     });

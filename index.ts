@@ -27,7 +27,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    const database = client.db('skillbridge');
+    const database = client.db(process.env.DB_NAME);
     const usersCollection = database.collection('users');
     const projectsCollection = database.collection('projects');
 

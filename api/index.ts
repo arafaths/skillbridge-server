@@ -3,7 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
-// Load environment variables
+// Load environment variables heee
 dotenv.config();
 
 const app = express();
